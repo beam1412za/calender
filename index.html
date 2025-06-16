@@ -106,6 +106,29 @@
 
   <!-- FullCalendar CSS -->
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet" />
+
+
+  
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD0_uY8swDAzxjGxAD3jqehnQXtf3PNkj4",
+      authDomain: "database-6bfe2.firebaseapp.com",
+      databaseURL: "https://database-6bfe2-default-rtdb.firebaseio.com",
+      projectId: "Ydatabase-6bfe2",
+      storageBucket: "database-6bfe2.firebasestorage.app",
+      messagingSenderId: "785373618624",
+      appId: "1:785373618624:web:455ccad46c7558ab9fe825"
+      measurementId: "G-2TTYFMNSWM"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+
+
+  
+  
 </head>
 <body>
   <header>
@@ -127,7 +150,15 @@
 
   <script>
     let isAdmin = false;
-    const savedEvents = JSON.parse(localStorage.getItem('events') || '[]');
+    const savedEvents = [];
+
+    firebase.database().ref("events").once("value", snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        Object.values(data).forEach(event => savedEvents.push(event));
+        calendar.addEventSource(savedEvents); // โหลดเข้าปฏิทิน
+      }
+    });
 
     document.addEventListener('DOMContentLoaded', function () {
       const calendarEl = document.getElementById('calendar');
@@ -157,7 +188,7 @@
               end: info.endStr
             };
             calendar.addEvent(newEvent);
-            saveEventToLocal(calendar.getEvents());
+            saveEventToFirebase(calendar.getEvents());
           }
           calendar.unselect();
         },
@@ -165,11 +196,11 @@
           if (!isAdmin) return;
           if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
             info.event.remove();
-            saveEventToLocal(calendar.getEvents());
+            saveEventToFirebase(calendar.getEvents());
           }
         },
         eventChange: function() {
-          if (isAdmin) saveEventToLocal(calendar.getEvents());
+          if (isAdmin) saveEventToFirebase(calendar.getEvents());
         }
       });
 
@@ -177,15 +208,16 @@
       window.calendar = calendar;
     });
 
-    function saveEventToLocal(events) {
+    function saveEventToFirebase(events) {
       const saved = events.map(e => ({
         id: e.id,
         title: e.title,
         start: e.startStr,
         end: e.endStr
       }));
-      localStorage.setItem('events', JSON.stringify(saved));
+      firebase.database().ref("events").set(saved);
     }
+
 
     function login() {
       const pass = prompt("กรุณาใส่รหัสผ่านเจ้าของร้าน:");
@@ -222,7 +254,7 @@
 
     function clearEvents() {
       if (confirm("ต้องการลบตารางคิวทั้งหมดหรือไม่?")) {
-        localStorage.removeItem('events');
+        firebase.database().ref("events").remove();
         window.location.reload();
       }
     }
