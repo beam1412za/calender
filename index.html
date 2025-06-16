@@ -107,8 +107,7 @@
   <!-- FullCalendar CSS -->
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet" />
 
-
-  
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script>
@@ -116,19 +115,15 @@
       apiKey: "AIzaSyD0_uY8swDAzxjGxAD3jqehnQXtf3PNkj4",
       authDomain: "database-6bfe2.firebaseapp.com",
       databaseURL: "https://database-6bfe2-default-rtdb.firebaseio.com",
-      projectId: "Ydatabase-6bfe2",
-      storageBucket: "database-6bfe2.firebasestorage.app",
+      projectId: "database-6bfe2", // ✅ แก้จาก Ydatabase-6bfe2
+      storageBucket: "database-6bfe2.appspot.com", // ✅ แก้ domain
       messagingSenderId: "785373618624",
-      appId: "1:785373618624:web:455ccad46c7558ab9fe825"
+      appId: "1:785373618624:web:455ccad46c7558ab9fe825",
       measurementId: "G-2TTYFMNSWM"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-</script>
-
-
-  
-  
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+  </script>
 </head>
 <body>
   <header>
@@ -152,14 +147,6 @@
     let isAdmin = false;
     const savedEvents = [];
 
-    firebase.database().ref("events").once("value", snapshot => {
-      const data = snapshot.val();
-      if (data) {
-        Object.values(data).forEach(event => savedEvents.push(event));
-        calendar.addEventSource(savedEvents); // โหลดเข้าปฏิทิน
-      }
-    });
-
     document.addEventListener('DOMContentLoaded', function () {
       const calendarEl = document.getElementById('calendar');
       const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -167,7 +154,7 @@
         locale: 'th',
         slotMinTime: '14:00:00',
         slotMaxTime: '23:00:00',
-        hiddenDays: [2], // ซ่อนวันอังคาร (0=อาทิตย์,1=จันทร์,2=อังคาร,...)
+        hiddenDays: [2],
         headerToolbar: {
           left: 'prev,next today',
           center: 'title',
@@ -204,6 +191,14 @@
         }
       });
 
+      firebase.database().ref("events").once("value", snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          Object.values(data).forEach(event => savedEvents.push(event));
+          calendar.addEventSource(savedEvents);
+        }
+      });
+
       calendar.render();
       window.calendar = calendar;
     });
@@ -217,7 +212,6 @@
       }));
       firebase.database().ref("events").set(saved);
     }
-
 
     function login() {
       const pass = prompt("กรุณาใส่รหัสผ่านเจ้าของร้าน:");
