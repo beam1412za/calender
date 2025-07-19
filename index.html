@@ -102,6 +102,10 @@
     button#logoutBtn:hover, button#clearBtn:hover {
       background-color: #9c27b0;
     }
+
+      .fc-toolbar-chunk button {
+    margin: 0 0.25rem !important; /* ปรับซ้ายขวาเป็น 0.25rem */
+  }
   </style>
 
   <!-- FullCalendar CSS -->
@@ -156,9 +160,9 @@
         slotMaxTime: '23:00:00',
         hiddenDays: [2],
         headerToolbar: {
-          left: 'prev,next today',
+          left: 'prev,next',
           center: 'title',
-          right: 'timeGridWeek,dayGridMonth'
+          right: 'today,timeGridWeek,dayGridMonth'
         },
         allDaySlot: false,
         editable: false,
