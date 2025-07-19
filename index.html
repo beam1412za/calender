@@ -54,8 +54,33 @@
     let isAdmin = false;
     let calendar;
 
-    document.addEventListener('DOMContentLoaded', function () {
+    // ฟังก์ชันแปลงข้อมูลเก่าที่เป็น array ให้เป็น object โดยใช้ id string เป็น key
+    async function convertOldDataToObject() {
+      const snapshot = await firebase.database().ref('events').once('value');
+      const data = snapshot.val();
+      if (!data) return;
+
+      // เช็คว่าข้อมูลเป็น array หรือ object
+      if (Array.isArray(data)) {
+        const newData = {};
+        data.forEach((item, index) => {
+          if (item) {
+            // ใช้ id เดิมถ้ามี หรือสร้างใหม่จาก timestamp + index
+            const id = item.id || (Date.now().toString() + '-' + index);
+            newData[id] = item;
+            newData[id].id = id; // กำหนด id ให้ชัดเจน
+          }
+        });
+
+        // เขียนข้อมูลรูปแบบ object กลับไปที่ Firebase แทน array
+        await firebase.database().ref('events').set(newData);
+        console.log('แปลงข้อมูลเก่าเป็น object เรียบร้อย');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
       const calendarEl = document.getElementById('calendar');
+
       calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
         locale: 'th',
@@ -75,32 +100,32 @@
           }
           calendar.unselect();
         },
-eventClick: function(info) {
-  if (!isAdmin) return;
-  if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
-    firebase.database().ref("events/" + info.event.id).remove()
-      .then(() => {
-        info.event.remove();
-        console.log("ลบข้อมูลสำเร็จ");
-      })
-      .catch((error) => {
-        console.error("ลบข้อมูลไม่สำเร็จ:", error);
+        eventClick: function(info) {
+          if (!isAdmin) return;
+          if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
+            firebase.database().ref("events/" + info.event.id).remove()
+              .then(() => {
+                info.event.remove();
+                console.log("ลบข้อมูลสำเร็จ");
+              })
+              .catch((error) => {
+                console.error("ลบข้อมูลไม่สำเร็จ:", error);
+              });
+          }
+        }
       });
-  }
-}
 
+      // แปลงข้อมูลเก่า (ถ้ามี) ก่อนโหลด
+      await convertOldDataToObject();
+
+      // โหลดข้อมูลและเชื่อม real-time
+      firebase.database().ref("events").on("value", snapshot => {
+        calendar.getEvents().forEach(e => e.remove());
+        const data = snapshot.val();
+        if (data) Object.values(data).forEach(event => calendar.addEvent(event));
       });
-
-      function loadEvents() {
-        firebase.database().ref("events").on("value", snapshot => {
-          calendar.getEvents().forEach(e => e.remove());
-          const data = snapshot.val();
-          if (data) Object.values(data).forEach(event => calendar.addEvent(event));
-        });
-      }
 
       calendar.render();
-      loadEvents();
     });
 
     function login() {
