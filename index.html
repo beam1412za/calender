@@ -160,7 +160,7 @@
         },
         eventClick: function(info) {
           if (!isAdmin) return;
-          if (confirm(ลบงาน "${info.event.title}" ใช่หรือไม่?)) {
+          if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
             firebase.database().ref("events/" + info.event.id).remove();
             info.event.remove();
           }
