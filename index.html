@@ -193,9 +193,9 @@
 
 firebase.database().ref("events").on("value", snapshot => {
   const data = snapshot.val();
-  calendar.getEvents().forEach(e => e.remove()); // ลบข้อมูลเดิม
+  calendar.getEvents().forEach(e => e.remove()); // ลบ event เดิมทั้งหมด
   if (data) {
-    Object.values(data).forEach(event => calendar.addEvent(event));
+    Object.values(data).forEach(event => calendar.addEvent(event)); // เพิ่ม event ใหม่
   }
 });
 
