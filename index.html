@@ -75,18 +75,20 @@
           }
           calendar.unselect();
         },
-        eventClick: function(info) {
-          if (!isAdmin) return;
-          if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
-            firebase.database().ref("events/" + info.event.id).remove()
-              .then(() => {
-                info.event.remove();
-              })
-              .catch(err => {
-                alert("ลบไม่สำเร็จ ❌ " + err.message);
-              });
-          }
-        }
+eventClick: function(info) {
+  if (!isAdmin) return;
+  if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
+    firebase.database().ref("events/" + info.event.id).remove()
+      .then(() => {
+        info.event.remove();
+        console.log("ลบข้อมูลสำเร็จ");
+      })
+      .catch((error) => {
+        console.error("ลบข้อมูลไม่สำเร็จ:", error);
+      });
+  }
+}
+
       });
 
       function loadEvents() {
