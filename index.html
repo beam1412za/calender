@@ -22,6 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script>
+    // กำหนด config firebase ของคุณ
     const firebaseConfig = {
       apiKey: "AIzaSyD0_uY8swDAzxjGxAD3jqehnQXtf3PNkj4",
       authDomain: "database-6bfe2.firebaseapp.com",
@@ -60,7 +61,7 @@
       const data = snapshot.val();
       if (!data) return;
 
-      // เช็คว่าข้อมูลเป็น array หรือ object
+      // ถ้าข้อมูลเป็น array
       if (Array.isArray(data)) {
         const newData = {};
         data.forEach((item, index) => {
@@ -72,7 +73,7 @@
           }
         });
 
-        // เขียนข้อมูลรูปแบบ object กลับไปที่ Firebase แทน array
+        // เขียนข้อมูลใหม่กลับไปที่ Firebase ในรูปแบบ object
         await firebase.database().ref('events').set(newData);
         console.log('แปลงข้อมูลเก่าเป็น object เรียบร้อย');
       }
@@ -86,7 +87,7 @@
         locale: 'th',
         slotMinTime: '14:00:00',
         slotMaxTime: '23:00:00',
-        hiddenDays: [2],
+        hiddenDays: [2], // วันอังคารซ่อน (0=อาทิตย์)
         headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,dayGridMonth' },
         allDaySlot: false,
         editable: false,
@@ -115,7 +116,7 @@
         }
       });
 
-      // แปลงข้อมูลเก่า (ถ้ามี) ก่อนโหลด
+      // เรียกแปลงข้อมูลเก่าก่อนโหลดปฏิทิน
       await convertOldDataToObject();
 
       // โหลดข้อมูลและเชื่อม real-time
