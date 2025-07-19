@@ -181,7 +181,7 @@
         },
         eventClick: function(info) {
           if (!isAdmin) return;
-          if (confirm(ลบงาน "${info.event.title}" ใช่หรือไม่?)) {
+          if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
             info.event.remove();
             saveEventToFirebase(calendar.getEvents());
           }
