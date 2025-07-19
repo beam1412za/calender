@@ -75,12 +75,14 @@
           }
           calendar.unselect();
         },
-        eventClick: function(info) {
-          if (!isAdmin) return;
-          if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
-            firebase.database().ref("events/" + info.event.id).remove();
-          }
-        }
+eventClick: function(info) {
+  if (!isAdmin) return;
+  if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
+    firebase.database().ref("events/" + info.event.id).remove().then(() => {
+      info.event.remove();  // 🔥 ลบออกจากหน้าจอด้วย
+    });
+  }
+}
       });
 
       // Real-time update when data changes
