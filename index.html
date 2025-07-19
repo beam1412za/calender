@@ -78,21 +78,27 @@
         eventClick: function(info) {
           if (!isAdmin) return;
           if (confirm(`ลบงาน "${info.event.title}" ใช่หรือไม่?`)) {
-            firebase.database().ref("events/" + info.event.id).remove().then(() => {
-              info.event.remove(); // ลบจากปฏิทินทันที
-            });
+            firebase.database().ref("events/" + info.event.id).remove()
+              .then(() => {
+                info.event.remove();
+              })
+              .catch(err => {
+                alert("ลบไม่สำเร็จ ❌ " + err.message);
+              });
           }
         }
       });
 
-      // Real-time sync with Firebase
-      firebase.database().ref("events").on("value", snapshot => {
-        calendar.getEvents().forEach(e => e.remove());
-        const data = snapshot.val();
-        if (data) Object.values(data).forEach(event => calendar.addEvent(event));
-      });
+      function loadEvents() {
+        firebase.database().ref("events").on("value", snapshot => {
+          calendar.getEvents().forEach(e => e.remove());
+          const data = snapshot.val();
+          if (data) Object.values(data).forEach(event => calendar.addEvent(event));
+        });
+      }
 
       calendar.render();
+      loadEvents();
     });
 
     function login() {
@@ -120,7 +126,9 @@
 
     function clearEvents() {
       if (confirm("ต้องการลบตารางคิวทั้งหมดหรือไม่?")) {
-        firebase.database().ref("events").remove();
+        firebase.database().ref("events").remove().then(() => {
+          calendar.getEvents().forEach(e => e.remove());
+        });
       }
     }
   </script>
