@@ -22,6 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
   <script>
+    // กำหนด config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyD0_uY8swDAzxjGxAD3jqehnQXtf3PNkj4",
       authDomain: "database-6bfe2.firebaseapp.com",
@@ -60,7 +61,6 @@
       const data = snapshot.val();
       if (!data) return;
 
-      // เช็คว่าข้อมูลเป็น array หรือ object
       if (Array.isArray(data)) {
         const newData = {};
         data.forEach((item, index) => {
