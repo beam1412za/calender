@@ -191,13 +191,13 @@
         }
       });
 
-      firebase.database().ref("events").once("value", snapshot => {
-        const data = snapshot.val();
-        if (data) {
-          Object.values(data).forEach(event => savedEvents.push(event));
-          calendar.addEventSource(savedEvents);
-        }
-      });
+firebase.database().ref("events").on("value", snapshot => {
+  const data = snapshot.val();
+  calendar.getEvents().forEach(e => e.remove()); // ลบข้อมูลเดิม
+  if (data) {
+    Object.values(data).forEach(event => calendar.addEvent(event));
+  }
+});
 
       calendar.render();
       window.calendar = calendar;
